@@ -4,12 +4,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Suhu</title>
+    <title>Pemantauan Suhu | GASMA</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js" type="text/javascript"></script>
     <style>
         body {
             font-family: 'Poppins', sans-serif;
@@ -52,9 +53,7 @@
 
 <body class="bg-slate-50">
     <div class="flex min-h-screen">
-        <!-- Sidebar -->
         <div class="w-70 gradient-bg text-white shadow-xl">
-            <!-- Logo -->
             <div class="p-6 border-b border-slate-600">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 bg-cyan-500 rounded-lg flex items-center justify-center">
@@ -67,11 +66,10 @@
                 </div>
             </div>
 
-            <!-- Navigation -->
             <nav class="mt-6 px-4">
                 <div class="mb-6">
                     <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">MAIN MENU</p>
-                    <a href="/dashboard" class="sidebar-item  flex items-center gap-3 py-3 px-4 rounded-lg mb-2">
+                    <a href="/dashboard" class="sidebar-item flex items-center gap-3 py-3 px-4 rounded-lg mb-2">
                         <i class="material-icons text-lg">dashboard</i>
                         <span class="font-medium">Dashboard</span>
                     </a>
@@ -79,7 +77,7 @@
                         <i class="material-icons text-lg">analytics</i>
                         <span class="font-medium">Pemantauan Gas</span>
                     </a>
-                    <a href="/pemantauan_suhu" class="sidebar-item active flex items-center gap-3 py-3 px-4 rounded-lg mb-2">
+                    <a href="/pemantauan_suhu" class="sidebar-item flex items-center gap-3 py-3 px-4 rounded-lg mb-2">
                         <i class="material-icons text-lg">thermostat</i>
                         <span class="font-medium">Pemantauan Suhu</span>
                     </a>
@@ -91,17 +89,9 @@
                         <i class="material-icons text-lg">notification_important</i>
                         <span class="font-medium">Notifikasi Insiden</span>
                     </a>
-                    <a href="/pemantauan_lokasi" class="sidebar-item  flex items-center gap-3 py-3 px-4 rounded-lg mb-2">
+                    <a href="/pemantauan_lokasi" class="sidebar-item flex items-center gap-3 py-3 px-4 rounded-lg mb-2">
                         <i class="material-icons text-lg">location_on</i>
                         <span class="font-medium">Lokasi</span>
-                    </a>
-                    <a href="/riwayat_pemantauan" class="sidebar-item flex items-center gap-3 py-3 px-4 rounded-lg mb-2">
-                        <i class="material-icons text-lg">history</i>
-                        <span class="font-medium">Riwayat Pemantauan</span>
-                    </a>
-                    <a href="/pemantauan_cahaya" class="sidebar-item active flex items-center gap-3 py-3 px-4 rounded-lg mb-2">
-                        <i class="material-icons text-lg">light_mode</i>
-                        <span class="font-medium">Pemantauan Cahaya</span>
                     </a>
                 </div>
 
@@ -118,51 +108,57 @@
                 </div>
             </nav>
         </div>
-        <!-- Main Content Area with Header -->
         <div class="flex-1 flex flex-col">
-            <!-- Header -->
             <header class="bg-white shadow-md py-4 px-6 flex items-center justify-between">
                 <div class="flex items-center gap-4">
                     <span class="material-icons text-gray-500">search</span>
-                    <input type="text" placeholder="Type to search..." class="bg-gray-100 px-4 py-2 rounded-md w-64 text-sm focus:outline-none focus:ring focus:ring-blue-300">
+                    <input type="text" placeholder="Type to search..."
+                        class="bg-gray-100 px-4 py-2 rounded-md w-64 text-sm focus:outline-none focus:ring focus:ring-blue-300">
                 </div>
                 <div class="flex items-center gap-6">
                     <button class="bg-gray-100 p-2 rounded-full relative">
                         <span class="material-icons text-gray-500">notifications</span>
-                        <span class="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">2</span>
+                        <span
+                            class="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">2</span>
                     </button>
                     <button class="bg-gray-100 p-2 rounded-full">
                         <span class="material-icons text-gray-500">chat</span>
                     </button>
-                    <div class="flex items-center gap-3">
-                        <img src="https://via.placeholder.com/40" alt="User Photo" class="w-10 h-10 rounded-full">
-                        <div>
-                            <h4 class="text-gray-800 text-sm font-semibold">Clinton Alfaro</h4>
-                            <p class="text-gray-500 text-xs">Admin</p>
+                    
+                    <div class="flex items-center gap-3 pl-4 border-l border-gray-200">
+                        <div class="flex items-center gap-2">
+                            <img src="https://via.placeholder.com/40" alt="User Photo" class="w-10 h-10 rounded-full">
+                            <div>
+                                <h4 class="text-gray-800 text-sm font-semibold">{{ Auth::user()->name ?? 'User' }}</h4>
+                                <p class="text-gray-500 text-xs">{{ Auth::user()->role ?? 'Admin' }}</p>
+                            </div>
                         </div>
-                        <button>
-                            <span class="material-icons text-gray-500">expand_more</span>
-                        </button>
+                        
+                        <form action="{{ route('logout') }}" method="POST">
+                            @csrf 
+                            <button type="submit" 
+                                class="flex items-center gap-1 bg-red-500 text-white px-3 py-2 rounded-lg text-sm font-semibold hover:bg-red-600 transition-colors shadow-md">
+                                <i class="fas fa-sign-out-alt text-xs"></i> Keluar
+                            </button>
+                        </form>
                     </div>
-                </div>
+                    </div>
             </header>
 
-            <!-- Main Content -->
             <main class="flex-1 p-6">
                 <div class="mb-6">
                     <h1 class="text-3xl font-bold text-gray-800 mb-2">Pemantauan Suhu</h1>
                     <p class="text-gray-600">Monitoring suhu dan kelembaban real-time dari sensor DHT22 dengan indikator warna dinamis</p>
                 </div>
 
-                <!-- Connection Status -->
                 <div class="mb-6">
-                    <div id="connectionStatus" class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
+                    <div id="connectionStatus"
+                        class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
                         <span class="w-2 h-2 bg-red-500 rounded-full mr-2"></span>
                         Disconnected
                     </div>
                 </div>
 
-                <!-- Color Legend -->
                 <div class="mb-6 bg-white rounded-lg shadow-lg p-4">
                     <h3 class="text-lg font-semibold text-gray-800 mb-3">Indikator Warna Status</h3>
                     <div class="flex flex-wrap gap-6">
@@ -176,20 +172,18 @@
                         </div>
                         <div class="flex items-center gap-2">
                             <div class="w-4 h-4 bg-red-500 rounded-full"></div>
-                            <span class="text-sm text-gray-600">Tidak Normal (<10°C atau>40°C, <25% atau>80% RH)</span>
+                            <span class="text-sm text-gray-600">Tidak Normal (&lt;10°C atau&gt;40°C, &lt;25% atau&gt;80% RH)</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Real-time Data Cards -->
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                    <!-- Temperature Card -->
-                    <div class="bg-white rounded-lg shadow-lg p-6 border-l-4 border-red-500">
+                    <div id="tempCard" class="bg-white rounded-lg shadow-lg p-6 border-l-4 border-gray-500 transition-all duration-500">
                         <div class="flex items-center justify-between">
                             <div>
                                 <h3 class="text-lg font-semibold text-gray-700 mb-2">Suhu</h3>
-                                <p id="temperatureValue" class="text-3xl font-bold text-red-600">--°C</p>
-                                <p id="temperatureStatus" class="text-sm text-gray-500 mt-1">Status: Normal</p>
+                                <p id="temperatureValue" class="text-3xl font-bold text-gray-800">--°C</p>
+                                <p id="temperatureStatus" class="text-sm text-gray-500 mt-1">Status: Memuat...</p>
                             </div>
                             <div class="text-red-500">
                                 <i class="material-icons text-4xl">thermostat</i>
@@ -197,13 +191,12 @@
                         </div>
                     </div>
 
-                    <!-- Humidity Card -->
-                    <div class="bg-white rounded-lg shadow-lg p-6 border-l-4 border-blue-500">
+                    <div id="humidityCard" class="bg-white rounded-lg shadow-lg p-6 border-l-4 border-gray-500 transition-all duration-500">
                         <div class="flex items-center justify-between">
                             <div>
                                 <h3 class="text-lg font-semibold text-gray-700 mb-2">Kelembaban</h3>
-                                <p id="humidityValue" class="text-3xl font-bold text-blue-600">--%</p>
-                                <p id="humidityStatus" class="text-sm text-gray-500 mt-1">Status: Normal</p>
+                                <p id="humidityValue" class="text-3xl font-bold text-gray-800">--%</p>
+                                <p id="humidityStatus" class="text-sm text-gray-500 mt-1">Status: Memuat...</p>
                             </div>
                             <div class="text-blue-500">
                                 <i class="material-icons text-4xl">water_drop</i>
@@ -211,7 +204,6 @@
                         </div>
                     </div>
 
-                    <!-- Last Update Card -->
                     <div class="bg-white rounded-lg shadow-lg p-6 border-l-4 border-green-500">
                         <div class="flex items-center justify-between">
                             <div>
@@ -226,13 +218,12 @@
                     </div>
                 </div>
 
-                <!-- Chart Section - Separate Charts -->
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-                    <!-- Temperature Chart -->
                     <div class="bg-white rounded-lg shadow-lg p-6">
                         <div class="flex items-center justify-between mb-4">
                             <h3 class="text-xl font-semibold text-gray-800">Grafik Suhu Real-time</h3>
-                            <button id="clearTempChart" class="px-3 py-1 bg-red-500 text-white rounded-lg hover:bg-red-600 transition text-sm">
+                            <button id="clearTempChart"
+                                class="px-3 py-1 bg-red-500 text-white rounded-lg hover:bg-red-600 transition text-sm">
                                 Clear
                             </button>
                         </div>
@@ -241,11 +232,11 @@
                         </div>
                     </div>
 
-                    <!-- Humidity Chart -->
                     <div class="bg-white rounded-lg shadow-lg p-6">
                         <div class="flex items-center justify-between mb-4">
                             <h3 class="text-xl font-semibold text-gray-800">Grafik Kelembaban Real-time</h3>
-                            <button id="clearHumidityChart" class="px-3 py-1 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition text-sm">
+                            <button id="clearHumidityChart"
+                                class="px-3 py-1 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition text-sm">
                                 Clear
                             </button>
                         </div>
@@ -255,11 +246,11 @@
                     </div>
                 </div>
 
-                <!-- Combined Chart Section -->
                 <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
                     <div class="flex items-center justify-between mb-4">
                         <h3 class="text-xl font-semibold text-gray-800">Grafik Gabungan Suhu dan Kelembaban Real-Time</h3>
-                        <button id="clearCombinedChart" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition">
+                        <button id="clearCombinedChart"
+                            class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition">
                             Clear Data
                         </button>
                     </div>
@@ -268,7 +259,6 @@
                     </div>
                 </div>
 
-                <!-- LED Status Simulation -->
                 <div class="bg-white rounded-lg shadow-lg p-6">
                     <h3 class="text-xl font-semibold text-gray-800 mb-4">Status LED Sensor</h3>
                     <div class="flex gap-6 items-center">
@@ -290,7 +280,6 @@
         </div>
     </div>
 
-    <!-- Footer -->
     <footer class="bg-[#232733] text-white text-center py-4 w-full">
         <p class="text-sm">&copy; 2024 GASMA. All rights reserved.</p>
     </footer>
@@ -336,22 +325,22 @@
                 case 'normal':
                     return {
                         border: 'rgb(34, 197, 94)',
-                            background: 'rgba(34, 197, 94, 0.1)'
+                        background: 'rgba(34, 197, 94, 0.1)'
                     };
                 case 'warning':
                     return {
                         border: 'rgb(234, 179, 8)',
-                            background: 'rgba(234, 179, 8, 0.1)'
+                        background: 'rgba(234, 179, 8, 0.1)'
                     };
                 case 'danger':
                     return {
                         border: 'rgb(239, 68, 68)',
-                            background: 'rgba(239, 68, 68, 0.1)'
+                        background: 'rgba(239, 68, 68, 0.1)'
                     };
                 default:
                     return {
                         border: 'rgb(107, 114, 128)',
-                            background: 'rgba(107, 114, 128, 0.1)'
+                        background: 'rgba(107, 114, 128, 0.1)'
                     };
             }
         }
@@ -367,14 +356,14 @@
                     datasets: [{
                         label: 'Suhu (°C)',
                         data: temperatureData,
-                        borderColor: function(context) {
+                        borderColor: function (context) {
                             const index = context.dataIndex;
                             if (index !== undefined && temperatureColors[index]) {
                                 return temperatureColors[index].border;
                             }
                             return 'rgb(239, 68, 68)';
                         },
-                        backgroundColor: function(context) {
+                        backgroundColor: function (context) {
                             const index = context.dataIndex;
                             if (index !== undefined && temperatureColors[index]) {
                                 return temperatureColors[index].background;
@@ -382,7 +371,7 @@
                             return 'rgba(107, 114, 128, 0.1)';
                         },
                         segment: {
-                            borderColor: function(ctx) {
+                            borderColor: function (ctx) {
                                 const index = ctx.p0DataIndex;
                                 if (temperatureColors[index]) {
                                     return temperatureColors[index].border;
@@ -392,7 +381,7 @@
                         },
                         tension: 0.4,
                         fill: true,
-                        pointBackgroundColor: function(context) {
+                        pointBackgroundColor: function (context) {
                             const index = context.dataIndex;
                             if (index !== undefined && temperatureColors[index]) {
                                 return temperatureColors[index].border;
@@ -431,14 +420,14 @@
                     datasets: [{
                         label: 'Kelembaban (%)',
                         data: humidityData,
-                        borderColor: function(context) {
+                        borderColor: function (context) {
                             const index = context.dataIndex;
                             if (index !== undefined && humidityColors[index]) {
                                 return humidityColors[index].border;
                             }
                             return 'rgb(30,144,255)';
                         },
-                        backgroundColor: function(context) {
+                        backgroundColor: function (context) {
                             const index = context.dataIndex;
                             if (index !== undefined && humidityColors[index]) {
                                 return humidityColors[index].background;
@@ -446,7 +435,7 @@
                             return 'rgba(107, 114, 128, 0.1)';
                         },
                         segment: {
-                            borderColor: function(ctx) {
+                            borderColor: function (ctx) {
                                 const index = ctx.p0DataIndex;
                                 if (humidityColors[index]) {
                                     return humidityColors[index].border;
@@ -456,7 +445,7 @@
                         },
                         tension: 0.4,
                         fill: true,
-                        pointBackgroundColor: function(context) {
+                        pointBackgroundColor: function (context) {
                             const index = context.dataIndex;
                             if (index !== undefined && humidityColors[index]) {
                                 return humidityColors[index].border;
@@ -496,14 +485,14 @@
                     datasets: [{
                         label: 'Suhu (°C)',
                         data: combinedTempData,
-                        borderColor: function(context) {
+                        borderColor: function (context) {
                             const index = context.dataIndex;
                             if (index !== undefined && combinedTempColors[index]) {
                                 return combinedTempColors[index].border;
                             }
                             return 'rgb(239, 68, 68)';
                         },
-                        backgroundColor: function(context) {
+                        backgroundColor: function (context) {
                             const index = context.dataIndex;
                             if (index !== undefined && combinedTempColors[index]) {
                                 return combinedTempColors[index].background;
@@ -511,7 +500,7 @@
                             return 'rgba(107, 114, 128, 0.1)';
                         },
                         segment: {
-                            borderColor: function(ctx) {
+                            borderColor: function (ctx) {
                                 const index = ctx.p0DataIndex;
                                 if (combinedTempColors[index]) {
                                     return combinedTempColors[index].border;
@@ -521,7 +510,7 @@
                         },
                         tension: 0.4,
                         yAxisID: 'y',
-                        pointBackgroundColor: function(context) {
+                        pointBackgroundColor: function (context) {
                             const index = context.dataIndex;
                             if (index !== undefined && combinedTempColors[index]) {
                                 return combinedTempColors[index].border;
@@ -531,14 +520,14 @@
                     }, {
                         label: 'Kelembaban (%)',
                         data: combinedHumidityData,
-                        borderColor: function(context) {
+                        borderColor: function (context) {
                             const index = context.dataIndex;
                             if (index !== undefined && combinedHumidityColors[index]) {
                                 return combinedHumidityColors[index].border;
                             }
                             return 'rgb(30,144,255)';
                         },
-                        backgroundColor: function(context) {
+                        backgroundColor: function (context) {
                             const index = context.dataIndex;
                             if (index !== undefined && combinedHumidityColors[index]) {
                                 return combinedHumidityColors[index].background;
@@ -546,7 +535,7 @@
                             return 'rgba(107, 114, 128, 0.1)';
                         },
                         segment: {
-                            borderColor: function(ctx) {
+                            borderColor: function (ctx) {
                                 const index = ctx.p0DataIndex;
                                 if (combinedHumidityColors[index]) {
                                     return combinedHumidityColors[index].border;
@@ -556,7 +545,7 @@
                         },
                         tension: 0.4,
                         yAxisID: 'y1',
-                        pointBackgroundColor: function(context) {
+                        pointBackgroundColor: function (context) {
                             const index = context.dataIndex;
                             if (index !== undefined && combinedHumidityColors[index]) {
                                 return combinedHumidityColors[index].border;
@@ -637,30 +626,56 @@
         function updateDataDisplay(data) {
             const now = new Date();
             const timeString = now.toLocaleTimeString();
+            const tempCard = document.getElementById('tempCard');
+            const humidityCard = document.getElementById('humidityCard');
 
-            // Update temperature
+            // --- SUHU (Temperature) ---
             document.getElementById('temperatureValue').textContent = `${data.suhu.toFixed(1)}°C`;
             const tempStatus = getTemperatureStatus(data.suhu);
             let tempStatusText = 'Normal';
-            if (tempStatus === 'warning') tempStatusText = 'Butuh Penyesuaian';
-            else if (tempStatus === 'danger') tempStatusText = 'Tidak Normal';
-            document.getElementById('temperatureStatus').textContent = `Status: ${tempStatusText}`;
+            let tempBorderClass = 'border-green-500';
 
-            // Update humidity
+            if (tempStatus === 'warning') {
+                tempStatusText = 'Butuh Penyesuaian';
+                tempBorderClass = 'border-yellow-500';
+            } else if (tempStatus === 'danger') {
+                tempStatusText = 'Tidak Normal';
+                tempBorderClass = 'border-red-500';
+            }
+            document.getElementById('temperatureStatus').textContent = `Status: ${tempStatusText}`;
+            tempCard.className = `bg-white rounded-lg shadow-lg p-6 border-l-4 ${tempBorderClass} transition-all duration-500`;
+            document.getElementById('temperatureValue').classList.remove('text-red-600', 'text-yellow-600', 'text-green-600');
+            document.getElementById('temperatureValue').classList.add(tempStatus === 'danger' ? 'text-red-600' : tempStatus === 'warning' ? 'text-yellow-600' : 'text-green-600');
+            
+
+            // --- KELEMBABAN (Humidity) ---
             document.getElementById('humidityValue').textContent = `${data.kelembaban.toFixed(1)}%`;
             const humidityStatus = getHumidityStatus(data.kelembaban);
             let humidityStatusText = 'Normal';
-            if (humidityStatus === 'warning') humidityStatusText = 'Butuh Penyesuaian';
-            else if (humidityStatus === 'danger') humidityStatusText = 'Tidak Normal';
+            let humBorderClass = 'border-blue-500';
+
+            if (humidityStatus === 'warning') {
+                humidityStatusText = 'Butuh Penyesuaian';
+                // Gunakan warna batas yang berbeda untuk Kelembaban agar tidak bingung dengan suhu
+                humBorderClass = 'border-yellow-500'; 
+            } else if (humidityStatus === 'danger') {
+                humidityStatusText = 'Tidak Normal';
+                // Gunakan warna batas yang berbeda untuk Kelembaban agar tidak bingung dengan suhu
+                humBorderClass = 'border-red-500'; 
+            }
             document.getElementById('humidityStatus').textContent = `Status: ${humidityStatusText}`;
+            humidityCard.className = `bg-white rounded-lg shadow-lg p-6 border-l-4 ${humBorderClass} transition-all duration-500`;
+            document.getElementById('humidityValue').classList.remove('text-red-600', 'text-yellow-600', 'text-green-600');
+            document.getElementById('humidityValue').classList.add(humidityStatus === 'danger' ? 'text-red-600' : humidityStatus === 'warning' ? 'text-yellow-600' : 'text-blue-600');
+            
 
             // Update last update time
             document.getElementById('lastUpdate').textContent = timeString;
 
-            // Update LED status
+            // Update LED status (berdasarkan suhu)
             updateLEDStatus(data.suhu);
 
-            // Add data to charts with colors
+            // Add data to charts
             addDataToCharts(data.suhu, data.kelembaban, timeString);
         }
 
@@ -736,7 +751,7 @@
         function connectMQTT() {
             client = new Paho.MQTT.Client(MQTT_HOST, MQTT_PORT, "web_client_" + Math.random().toString(16).substr(2, 8));
 
-            client.onConnectionLost = function(responseObject) {
+            client.onConnectionLost = function (responseObject) {
                 if (responseObject.errorCode !== 0) {
                     console.log("Connection lost: " + responseObject.errorMessage);
                     updateConnectionStatus(false);
@@ -744,7 +759,7 @@
                 }
             };
 
-            client.onMessageArrived = function(message) {
+            client.onMessageArrived = function (message) {
                 console.log("Message received: " + message.payloadString);
                 try {
                     const data = JSON.parse(message.payloadString);
@@ -755,13 +770,13 @@
             };
 
             const options = {
-                onSuccess: function() {
+                onSuccess: function () {
                     console.log("Connected to MQTT broker");
                     updateConnectionStatus(true);
                     client.subscribe(MQTT_TOPIC);
                     console.log("Subscribed to topic: " + MQTT_TOPIC);
                 },
-                onFailure: function(error) {
+                onFailure: function (error) {
                     console.log("Connection failed: " + error.errorMessage);
                     updateConnectionStatus(false);
                     setTimeout(connectMQTT, 5000);
@@ -773,40 +788,52 @@
             } catch (error) {
                 console.error("MQTT connection error:", error);
                 updateConnectionStatus(false);
-                simulateData();
             }
         }
 
-        // Simulate Data (fallback when MQTT is not available)
+        // Simulate Data (Fallback)
         function simulateData() {
-            console.log("Simulating data...");
-            setInterval(() => {
-                const simulatedData = {
-                    suhu: 5 + Math.random() * 50, // Range 5-55°C untuk menguji semua kondisi
-                    kelembaban: 15 + Math.random() * 75 // Range 15-90% untuk menguji semua kondisi
-                };
-                updateDataDisplay(simulatedData);
-            }, 3000); // Every 3 seconds
+            // Check if simulation is already running (assuming you implement an interval variable in a real app)
+            // For this snippet, we'll skip interval control for brevity, assuming the function is called once if MQTT fails.
+             console.log("Simulating data...");
+             setInterval(() => {
+                 const simulatedData = {
+                     suhu: 5 + Math.random() * 50, // Range 5-55°C
+                     kelembaban: 15 + Math.random() * 75 // Range 15-90%
+                 };
+                 updateDataDisplay(simulatedData);
+             }, 3000); // Every 3 seconds
         }
+
+        // --- START FIX: Sidebar Active Class Logic ---
+        function setSidebarActiveState() {
+            const sidebarItems = document.querySelectorAll('.sidebar-item');
+            // Mengambil pathname saat ini, misalnya '/pemantauan_suhu'
+            const currentPath = window.location.pathname.replace(/\/$/, ""); 
+
+            // Loop untuk mengatur kelas 'active'
+            sidebarItems.forEach(item => {
+                item.classList.remove('active');
+                
+                // Cek apakah href item sama dengan path saat ini
+                if (item.getAttribute('href') === currentPath) {
+                    item.classList.add('active');
+                }
+            });
+        }
+        // --- END FIX ---
+
 
         // Event Listeners
         document.getElementById('clearTempChart').addEventListener('click', clearTemperatureChart);
         document.getElementById('clearHumidityChart').addEventListener('click', clearHumidityChart);
         document.getElementById('clearCombinedChart').addEventListener('click', clearCombinedChart);
-
-        // Sidebar menu functionality
-        const menuItems = document.querySelectorAll('.menu-item');
-        menuItems.forEach(item => {
-            item.addEventListener('click', function(event) {
-                menuItems.forEach(i => i.classList.remove('bg-white', 'text-black'));
-                this.classList.add('bg-white', 'text-black');
-            });
-        });
-
+        
         // Initialize everything when page loads
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             initializeCharts();
             connectMQTT();
+            setSidebarActiveState(); // Panggil fungsi perbaikan
         });
     </script>
 </body>

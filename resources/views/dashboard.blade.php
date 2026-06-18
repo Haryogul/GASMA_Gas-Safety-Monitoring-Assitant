@@ -1,10 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GASMA Dashboard</title>
+    <title>GASMA - Dashboard Utama</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -47,14 +46,14 @@
             background: rgba(255, 255, 255, 0.15);
             border-left: 3px solid #06b6d4;
         }
+        
+        /* CATATAN: Style .logout-btn kustom dihapus dan diganti dengan kelas Tailwind di HTML */
     </style>
 </head>
 
 <body class="bg-slate-50">
     <div class="flex min-h-screen">
-        <!-- Sidebar -->
         <div class="w-70 gradient-bg text-white shadow-xl">
-            <!-- Logo -->
             <div class="p-6 border-b border-slate-600">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 bg-cyan-500 rounded-lg flex items-center justify-center">
@@ -67,7 +66,6 @@
                 </div>
             </div>
 
-            <!-- Navigation -->
             <nav class="mt-6 px-4">
                 <div class="mb-6">
                     <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">MAIN MENU</p>
@@ -91,17 +89,9 @@
                         <i class="material-icons text-lg">notification_important</i>
                         <span class="font-medium">Notifikasi Insiden</span>
                     </a>
-                    <a href="/pemantauan_lokasi" class="sidebar-item  flex items-center gap-3 py-3 px-4 rounded-lg mb-2">
+                    <a href="/pemantauan_lokasi" class="sidebar-item flex items-center gap-3 py-3 px-4 rounded-lg mb-2">
                         <i class="material-icons text-lg">location_on</i>
                         <span class="font-medium">Lokasi</span>
-                    </a>
-                    <a href="/riwayat_pemantauan" class="sidebar-item flex items-center gap-3 py-3 px-4 rounded-lg mb-2">
-                        <i class="material-icons text-lg">history</i>
-                        <span class="font-medium">Riwayat Pemantauan</span>
-                    </a>
-                    <a href="/pemantauan_cahaya" class="sidebar-item active flex items-center gap-3 py-3 px-4 rounded-lg mb-2">
-                        <i class="material-icons text-lg">light_mode</i>
-                        <span class="font-medium">Pemantauan Cahaya</span>
                     </a>
                 </div>
 
@@ -119,48 +109,49 @@
             </nav>
         </div>
 
-        <!-- Main Content -->
         <div class="flex-1 flex flex-col">
-            <!-- Header -->
             <header class="bg-white shadow-sm border-b border-slate-200 px-6 py-4">
                 <div class="flex items-center justify-between">
                     <div>
-                        <h1 class="text-lg font-semibold text-slate-900">Selamat Datang, Admin</h1>
+                        <h1 class="text-lg font-semibold text-slate-900">Selamat Datang, {{ Auth::user()->name ?? 'Admin' }}</h1>
                         <p class="text-slate-600 text-sm">Pantau Keamanan Gas Anda dan Laporkan Keadaan yang serius</p>
                     </div>
 
                     <div class="flex items-center gap-4">
-                        <!-- Search -->
                         <div class="relative">
                             <i class="material-icons absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400">search</i>
                             <input type="text" placeholder="Search for..."
                                 class="pl-10 pr-4 py-2 w-80 bg-slate-100 rounded-lg border-0 focus:outline-none focus:ring-2 focus:ring-cyan-500 text-sm">
                         </div>
 
-                        <!-- Notifications -->
                         <button class="relative p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors">
                             <i class="material-icons">notifications</i>
                             <span class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">2</span>
                         </button>
 
-                        <!-- User Profile -->
-                        <div class="flex items-center gap-3 pl-4 border-l border-slate-200">
-                            <img src="https://via.placeholder.com/40" alt="User" class="w-10 h-10 rounded-full">
-                            <div>
-                                <p class="font-semibold text-slate-900 text-sm">Clinton Alfaro</p>
-                                <p class="text-slate-500 text-xs">Admin</p>
+                        <div class="flex items-center gap-4 pl-4 border-l border-slate-200">
+                            <div class="flex items-center gap-3">
+                                <img src="https://via.placeholder.com/40" alt="User" class="w-10 h-10 rounded-full">
+                                <div class="flex flex-col">
+                                    <p class="font-semibold text-slate-900 text-sm">{{ Auth::user()->name ?? 'User' }}</p>
+                                    <p class="text-slate-500 text-xs">Admin</p>
+                                </div>
                             </div>
-                            <i class="material-icons text-slate-400">expand_more</i>
+                            
+                            <form action="{{ route('logout') }}" method="POST">
+                                @csrf 
+                                <button type="submit" 
+                                        class="flex items-center gap-1 bg-red-500 text-white px-3 py-2 rounded-lg text-sm font-semibold hover:bg-red-600 transition-colors shadow-md">
+                                    <i class="fas fa-sign-out-alt text-xs"></i> Keluar
+                                </button>
+                            </form>
                         </div>
                     </div>
                 </div>
             </header>
 
-            <!-- Main Dashboard Content -->
             <main class="flex-1 p-6 bg-slate-50">
-                <!-- Metrics Cards -->
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                    <!-- Gas Detection Card -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                     <div class="metric-card card-hover rounded-xl p-6">
                         <div class="flex items-center justify-between mb-4">
                             <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
@@ -175,7 +166,6 @@
                         </div>
                     </div>
 
-                    <!-- Temperature Card -->
                     <div class="metric-card card-hover rounded-xl p-6">
                         <div class="flex items-center justify-between mb-4">
                             <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
@@ -190,22 +180,6 @@
                         </div>
                     </div>
 
-                    <!-- Vibration Card -->
-                    <div class="metric-card card-hover rounded-xl p-6">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
-                                <i class="material-icons text-yellow-600 text-xl">vibration</i>
-                            </div>
-                            <span class="text-xs font-semibold text-yellow-600 bg-yellow-100 px-2 py-1 rounded-full">AKTIF</span>
-                        </div>
-                        <h3 class="text-2xl font-bold text-slate-900 mb-1">3</h3>
-                        <p class="text-slate-600 text-sm mb-2">Getaran Terpantau</p>
-                        <div class="flex items-center gap-2">
-                            <span class="text-yellow-500 text-xs">→ 3 Kali Getaran</span>
-                        </div>
-                    </div>
-
-                    <!-- Incidents Card -->
                     <div class="metric-card card-hover rounded-xl p-6">
                         <div class="flex items-center justify-between mb-4">
                             <div class="w-12 h-12 bg-cyan-100 rounded-lg flex items-center justify-center">
@@ -221,9 +195,7 @@
                     </div>
                 </div>
 
-                <!-- Charts Section -->
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-                    <!-- Temperature Chart -->
                     <div class="bg-white rounded-xl shadow-sm p-6 card-hover">
                         <div class="flex items-center justify-between mb-6">
                             <div>
@@ -241,7 +213,6 @@
                         </div>
                     </div>
 
-                    <!-- Gas Incidents Chart -->
                     <div class="bg-white rounded-xl shadow-sm p-6 card-hover">
                         <div class="flex items-center justify-between mb-6">
                             <div>
@@ -255,9 +226,7 @@
                     </div>
                 </div>
 
-                <!-- Bottom Charts -->
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <!-- Gas Monitoring History -->
                     <div class="lg:col-span-2 bg-white rounded-xl shadow-sm p-6 card-hover">
                         <div class="flex items-center justify-between mb-6">
                             <div>
@@ -270,7 +239,6 @@
                         </div>
                     </div>
 
-                    <!-- Incident Distribution -->
                     <div class="bg-white rounded-xl shadow-sm p-6 card-hover">
                         <div class="flex items-center justify-between mb-6">
                             <div>
@@ -551,10 +519,6 @@
             window.location.href = '/notifikasi_insiden';
         }
 
-        function navigateToHistory() {
-            window.location.href = '/riwayat_pemantauan';
-        }
-
         // Add click handlers to metric cards for quick navigation
         document.addEventListener('DOMContentLoaded', function() {
             const cards = document.querySelectorAll('.metric-card');
@@ -568,10 +532,7 @@
                         case 1: // Temperature Card
                             navigateToTemperatureMonitoring();
                             break;
-                        case 2: // Vibration Card (not implemented yet)
-                            // Could add notification or modal
-                            break;
-                        case 3: // Incidents Card
+                        case 2: // Incidents Card
                             navigateToIncidentNotifications();
                             break;
                     }
