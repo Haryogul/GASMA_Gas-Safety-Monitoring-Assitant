@@ -8,4 +8,15 @@ export default defineConfig({
             refresh: true,
         }),
     ],
+    // TAMBAHKAN BAGIAN DI BAWAH INI
+    build: {
+        rollupOptions: {
+            output: {
+                // Mengunci nama file agar selalu menjadi app.js dan app.css tetap
+                entryFileNames: 'assets/app.js',
+                chunkFileNames: 'assets/app.js',
+                assetFileNames: 'assets/app.[ext]'
+            }
+        }
+    }
 });
